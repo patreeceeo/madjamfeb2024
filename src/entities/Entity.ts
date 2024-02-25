@@ -1,5 +1,6 @@
-import {Sprite, Texture} from "three";
+import { Sprite, Texture } from "three";
 import { state } from "../state";
+import { Rect } from "../Rect";
 
 export class Entity {
   sprite: Sprite;
@@ -8,10 +9,7 @@ export class Entity {
   w = 0;
   h = 0;
 
-  constructor(
-    animations: Record<string, Texture[]>,
-    defaultAnimation: string
-  ) {
+  constructor(animations: Record<string, Texture[]>, defaultAnimation: string) {
     const sprite = new Sprite();
     sprite.material.map = animations[defaultAnimation][0];
     const image = sprite.material.map.image as HTMLImageElement;
@@ -46,7 +44,7 @@ export class Entity {
   }
 
   getVelocityDependentHitbox(dt: number) {
-    const hitbox = {h: 0, w: 0, x: 0, y: 0};
+    const hitbox = new Rect();
     hitbox.w += dt * this.dx;
     hitbox.h += dt * this.dy;
     hitbox.x = this.x - hitbox.w / 2;
