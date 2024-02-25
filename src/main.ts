@@ -5,7 +5,7 @@ import {
 import { log_clear, log_getContent, log_write } from "./log";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-import { DEBUG } from "./constants";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEBUG } from "./constants";
 
 import * as Tone from "tone";
 import {
@@ -13,7 +13,7 @@ import {
 } from "./state";
 
 import "./style.css";
-import {Sprite, Texture, TextureLoader, Vector3} from "three";
+import {Texture, TextureLoader, Vector3} from "three";
 import {Entity} from "./entities/Entity";
 
 const canvasWrapperEl = document.getElementById("canvas-wrapper")!;
@@ -67,7 +67,7 @@ const texture = await new Promise<Texture>((resolve) => { const texture = loader
 const start = () => {
   const { renderer, camera } = state;
 
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
   renderer.setPixelRatio(window.devicePixelRatio * 2);
 
   camera.zoom = Math.min(1 / window.innerWidth, 1 / window.innerHeight);
