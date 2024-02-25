@@ -75,7 +75,7 @@ const start = () => {
   camera.position.set(0, 0, 1);
   camera.updateProjectionMatrix();
 
-  const entity = new Entity({idle: texture}, "idle");
+  const entity = new Entity({idle: [texture]}, "idle");
   entity.spawn(0, 0);
 
   canvasWrapperEl.appendChild(state.renderer.domElement);

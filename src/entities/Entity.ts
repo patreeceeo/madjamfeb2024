@@ -9,11 +9,11 @@ export class Entity {
   h = 0;
 
   constructor(
-    animations: Record<string, Texture>,
+    animations: Record<string, Texture[]>,
     defaultAnimation: string
   ) {
     const sprite = new Sprite();
-    sprite.material.map = animations[defaultAnimation];
+    sprite.material.map = animations[defaultAnimation][0];
     const image = sprite.material.map.image as HTMLImageElement;
     this.w = image.width;
     this.h = image.height;
