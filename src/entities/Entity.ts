@@ -1,106 +1,67 @@
-import * as PIXI from "pixi.js";
+import {Sprite, Texture} from "three";
 import { state } from "../state";
 
-const DEFAULT_ANIMATION_SPEED = 0.2;
-
-export abstract class Entity {
-  private spawned = false;
-  sprite: PIXI.AnimatedSprite;
-  animations: Record<string, PIXI.Texture[]>;
-  currentAnimation: string;
+export class Entity {
+  sprite: Sprite;
   dx = 0;
   dy = 0;
+  w = 0;
+  h = 0;
 
   constructor(
-    animations: Record<string, PIXI.Texture[]>,
+    animations: Record<string, Texture>,
     defaultAnimation: string
   ) {
-    this.animations = animations;
-    this.currentAnimation = defaultAnimation;
-
-    this.sprite = new PIXI.AnimatedSprite(this.animations[defaultAnimation]);
-    this.sprite.anchor.set(0, 1);
-    this.sprite.animationSpeed = DEFAULT_ANIMATION_SPEED;
+    const sprite = new Sprite();
+    sprite.material.map = animations[defaultAnimation];
+    const image = sprite.material.map.image as HTMLImageElement;
+    this.w = image.width;
+    this.h = image.height;
+    sprite.scale.set(this.w, this.w, 0);
+    this.sprite = sprite;
   }
 
-  spawn(container: PIXI.Container, x: number, y: number) {
-    container.addChild(this.sprite);
+  spawn(x: number, y: number) {
     this.x = x;
     this.y = y;
 
-    this.spawned = true;
-
-    this.sprite.play();
-
     state.entities.add(this);
+    state.scene.add(this.sprite);
   }
 
   set x(x: number) {
-    this.sprite.x = x;
+    this.sprite.position.x = x;
   }
 
   set y(y: number) {
-    this.sprite.y = y;
+    this.sprite.position.y = y;
   }
 
   get x() {
-    return this.sprite.x;
+    return this.sprite.position.x;
   }
 
   get y() {
-    return this.sprite.y;
-  }
-
-  /** @deprecated use getVelocityDependentHitbox instead */
-  get hitbox() {
-    return this.sprite.getBounds();
+    return this.sprite.position.y;
   }
 
   getVelocityDependentHitbox(dt: number) {
-    const hitbox = this.sprite.getBounds();
-    hitbox.width += dt * this.dx;
-    hitbox.height += dt * this.dy;
+    const hitbox = {h: 0, w: 0, x: 0, y: 0};
+    hitbox.w += dt * this.dx;
+    hitbox.h += dt * this.dy;
+    hitbox.x = this.x - hitbox.w / 2;
+    hitbox.y = this.y - hitbox.h / 2;
     return hitbox;
   }
 
-  get w() {
-    return this.sprite.getBounds().width;
-  }
-
-  get h() {
-    return this.sprite.getBounds().height;
-  }
-
   despawn() {
-    const { entities } = state;
+    const { entities, scene } = state;
     const { sprite } = this;
-    sprite.parent.removeChild(sprite);
+    scene.remove(sprite);
     entities.delete(this);
   }
 
-  playAnimation(animName: string) {
-    if (!this.spawned) {
-      throw new Error("Entity must be spawned first");
-    }
-    const anim = this.animations[animName];
-    if (!anim) {
-      throw new Error(
-        `Animation name ${animName} doesn't exist on this entity`
-      );
-    }
-    if (animName === this.currentAnimation) return;
-    this.currentAnimation = animName;
-    this.sprite.textures = this.animations[animName];
-
-    this.sprite.play();
-  }
-
   update(_dt: number) {}
-
-  /** @deprecated use onCollide instead */
-  isCollidingWith(hitbox: PIXI.Rectangle) {
-    return this.sprite.getBounds().intersects(hitbox);
-  }
 
   onCollide(_other: Entity) {}
 

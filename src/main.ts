@@ -13,7 +13,8 @@ import {
 } from "./state";
 
 import "./style.css";
-import {Sprite, TextureLoader, Vector3} from "three";
+import {Sprite, Texture, TextureLoader, Vector3} from "three";
+import {Entity} from "./entities/Entity";
 
 const canvasWrapperEl = document.getElementById("canvas-wrapper")!;
 const logEl = document.getElementById("log")!;
@@ -60,10 +61,11 @@ const tick = () => {
 
 const loader = new TextureLoader();
 
-const texture = loader.load("sprites/monkeymad.png");
+const texture = await new Promise<Texture>((resolve) => { const texture = loader.load("sprites/monkeymad.png", () => resolve(texture))
+});
 
 const start = () => {
-  const { renderer, camera, scene } = state;
+  const { renderer, camera } = state;
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio * 2);
@@ -73,10 +75,8 @@ const start = () => {
   camera.position.set(0, 0, 1);
   camera.updateProjectionMatrix();
 
-  const sprite = new Sprite();
-  sprite.material.map = texture;
-  sprite.scale.set(100, 100, 0);
-  scene.add(sprite);
+  const entity = new Entity({idle: texture}, "idle");
+  entity.spawn(0, 0);
 
   canvasWrapperEl.appendChild(state.renderer.domElement);
   requestAnimationFrame(tick);
